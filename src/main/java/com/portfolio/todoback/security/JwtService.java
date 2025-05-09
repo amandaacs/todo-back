@@ -21,6 +21,9 @@ public class JwtService {
     @Value("${spring.security.jwt.secret}")
     private String secret;
 
+    @Value("${spring.security.jwt.expiration}")
+    private long jwtExpiration;
+
     private Key key;
 
     private SecretKey getSignInKey() {
