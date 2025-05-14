@@ -1,34 +1,39 @@
 <h1 align="center">
-  TODO List EDITAR ANTES DE COMMIT
+  TODO List 
 </h1>
 
 <p align="center">
- <img src="https://img.shields.io/static/v1?label=Youtube&message=@giulianabezerra&color=8257E5&labelColor=000000" alt="@giulianabezerra" />
- <img src="https://img.shields.io/static/v1?label=Tipo&message=Desafio&color=8257E5&labelColor=000000" alt="Desafio" />
+ <img src="https://img.shields.io/static/v1?label=Tipo&message=Full%20Stack&color=8257E5&labelColor=000000" alt="Full Stack" />
+
 </p>
 
 API para gerenciar tarefas (CRUD) com registro de usuários e login com token.
 
 
 
-## Tecnologias
+## 💻 Tecnologias
 
 - [Spring Boot](https://spring.io/projects/spring-boot)
 - [Spring MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
 - [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-- [SpringDoc OpenAPI 3](https://springdoc.org/v2/#spring-webflux-support)
-- [Mysql](https://dev.mysql.com/downloads/)
+- [PostgreSQL](https://www.postgresql.org/download/)
 
-## Práticas adotadas
+## ⌨️ Práticas adotadas
 
 - SOLID, DRY, YAGNI, KISS
-- API REST
+- API RESTful
+- Autenticação com JWT
+- Spring Security
 - Consultas com Spring Data JPA
-- Injeção de Dependências
-- Tratamento de respostas de erro
-- Geração automática do Swagger com a OpenAPI 3
+- Mapeamento entre entidades e DTOs
+- Injeção de Dependências com @RequiredArgsConstructor
+- Separação de camadas (@Service, @Controller, @Repository)
+- Tratamento de erros com ResponseEntity
+- Persistência automática de datas com @PrePersist
+- Relacionamento entre entidades com JPA (@ManyToOne)
 
-## Como Executar
+
+## ▶️ Como Executar
 
 - Clonar repositório git
 - Construir o projeto:
@@ -41,60 +46,164 @@ $ java -jar target/todolist-0.0.1-SNAPSHOT.jar
 ```
 
 A API poderá ser acessada em [localhost:8080](http://localhost:8080).
-O Swagger poderá ser visualizado em [localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
 
 ## API Endpoints
 
-Para fazer as requisições HTTP abaixo, foi utilizada a ferramenta [httpie](https://httpie.io):
+## 📫 Como testar a API (Postman)
 
-- Criar Tarefa
+> Todas as rotas protegidas exigem um token JWT no header:  
+> `Authorization: Bearer SEU_TOKEN_AQUI`
+
+---
+
+## 🔐 Autenticação
+
+### ➕ Registrar novo usuário
+
+**POST** `/api/auth/register`
+
+**Body (JSON):**
+```json
+{
+  "username": "usuario",
+  "password": "senha"
+}
 ```
-$ http POST :8080/todos nome="Todo 1" descricao="Desc Todo 1" prioridade=1
 
+---
+
+### 🔑 Login
+
+**POST** `/api/auth/login`
+
+**Body (JSON):**
+```json
+{
+  "username": "usuario",
+  "password": "senha"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "JWT_TOKEN_AQUI"
+}
+```
+
+---
+
+## 📌 Endpoints de Tarefas (protegidos)
+
+---
+
+### ✅ Criar tarefa
+
+**POST** `/api/tasks`
+
+**Headers:**
+```
+Authorization: Bearer JWT_TOKEN_AQUI
+```
+
+**Body (JSON):**
+```json
+{
+  "title": "Estudar Spring",
+  "description": "Ler documentação oficial"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 1,
+  "title": "Estudar Spring",
+  "description": "Ler documentação oficial",
+  "completed": false
+}
+```
+
+---
+
+### 📋 Listar tarefas do usuário autenticado
+
+**GET** `/api/tasks`
+
+**Headers:**
+```
+Authorization: Bearer JWT_TOKEN_AQUI
+```
+
+**Response:**
+```json
 [
   {
-    "descricao": "Desc Todo 1",
     "id": 1,
-    "nome": "Todo 1",
-    "prioridade": 1,
-    "realizado": false
+    "title": "Estudar Spring",
+    "description": "Ler documentação oficial",
+    "completed": false
   }
 ]
 ```
 
-- Listar Tarefas
-```
-$ http GET :8080/todos
+---
 
-[
-  {
-    "descricao": "Desc Todo 1",
-    "id": 1,
-    "nome": "Todo 1",
-    "prioridade": 1,
-    "realizado": false
-  }
-]
+### ✏️ Atualizar tarefa
+
+**PUT** `/api/tasks/{id}`
+
+**Headers:**
+```
+Authorization: Bearer JWT_TOKEN_AQUI
 ```
 
-- Atualizar Tarefa
-```
-$ http PUT :8080/todos/1 nome="Todo 1 Up" descricao="Desc Todo 1 Up" prioridade=2
-
-[
-  {
-    "descricao": "Desc Todo 1 Up",
-    "id": 1,
-    "nome": "Todo 1 Up",
-    "prioridade": 2,
-    "realizado": false
-  }
-]
+**Body (JSON):**
+```json
+{
+  "title": "Estudar Spring Boot",
+  "description": "Ler sobre segurança e JWT",
+  "completed": false
+}
 ```
 
-- Remover Tarefa
-```
-http DELETE :8080/todos/1
+---
 
-[ ]
+### ✅ Marcar tarefa como concluída
+
+**PUT** `/api/tasks/{id}/complete`
+
+**Headers:**
 ```
+Authorization: Bearer JWT_TOKEN_AQUI
+```
+
+---
+
+### ↩️ Desmarcar tarefa como concluída
+
+**PUT** `/api/tasks/{id}/undo`
+
+**Headers:**
+```
+Authorization: Bearer JWT_TOKEN_AQUI
+```
+
+---
+
+### 🗑️ Deletar tarefa
+
+**DELETE** `/api/tasks/{id}`
+
+**Headers:**
+```
+Authorization: Bearer JWT_TOKEN_AQUI
+```
+
+---
+
+## 📎 Observações
+
+- Todos os endpoints de tarefas estão protegidos por autenticação.
+- As tarefas são associadas ao usuário logado.
