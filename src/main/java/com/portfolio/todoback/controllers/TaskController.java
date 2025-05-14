@@ -27,8 +27,17 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAllTasksByCurrentUser());
+    public ResponseEntity<List<TaskResponse>> getAllTasks() {
+        List<Task> tasks = taskService.getAllTasksByCurrentUser();
+        List<TaskResponse> responses = tasks.stream().map(task ->
+                new TaskResponse(
+                        task.getId(),
+                        task.getTitle(),
+                        task.getDescription(),
+                        task.isCompleted()
+                )
+        ).toList();
+        return ResponseEntity.ok(responses);
     }
 
     @PutMapping("/{id}")
@@ -36,6 +45,28 @@ public class TaskController {
         Task updatedTask = taskService.updateTask(id, task);
         TaskResponse taskResponse =  new TaskResponse(updatedTask.getId(), updatedTask.getTitle(), updatedTask.getDescription(), updatedTask.isCompleted());
         return ResponseEntity.ok(taskResponse);
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<TaskResponse> completeTask(@PathVariable Long id) {
+        Task updatedTask = taskService.markTaskAsCompleted(id, true);
+        return ResponseEntity.ok(new TaskResponse(
+                updatedTask.getId(),
+                updatedTask.getTitle(),
+                updatedTask.getDescription(),
+                updatedTask.isCompleted()
+        ));
+    }
+
+    @PutMapping("/{id}/undo")
+    public ResponseEntity<TaskResponse> undoCompleteTask(@PathVariable Long id) {
+        Task updatedTask = taskService.markTaskAsCompleted(id, false);
+        return ResponseEntity.ok(new TaskResponse(
+                updatedTask.getId(),
+                updatedTask.getTitle(),
+                updatedTask.getDescription(),
+                updatedTask.isCompleted()
+        ));
     }
 
     @DeleteMapping("/{id}")

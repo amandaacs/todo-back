@@ -22,7 +22,7 @@ public class Task {
 
     private String title;
     private String description;
-    private boolean completed;
+    private boolean completed = false;
     private LocalDate date;
 
     @ManyToOne

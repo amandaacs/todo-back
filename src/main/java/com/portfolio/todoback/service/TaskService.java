@@ -45,4 +45,10 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public Task markTaskAsCompleted(Long id, boolean completed) {
+        Task task = taskRepository.findById(id).orElseThrow();
+        task.setCompleted(completed);
+        return taskRepository.save(task);
+    }
+
 }
